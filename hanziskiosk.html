@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hanzis Kiosk Preisrechner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('hintergrundhanzi.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .wrapper {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #fff;
+      margin-bottom: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px #000;
+      user-select: none;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      padding: 30px;
+      border-radius: 20px;
+      background-color: rgba(0, 0, 0, 0.75);
+      max-width: 1200px;
+      width: 90%;
+      color: #fff;
+      box-shadow: 0 0 20px #000;
+    }
+
+    .category {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .category h2 {
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+      color: #FF7F00;
+      text-shadow: 0 0 8px #000;
+      user-select: none;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.2em;
+      padding: 5px 10px;
+      background-color: rgba(225, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .item input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1em;
+      background-color: #fff;
+      color: #000;
+    }
+
+    #total {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      font-weight: bold;
+      padding: 15px 40px;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: #FF7F00;
+      text-shadow: 0 0 10px #000;
+      border-radius: 20px;
+      box-shadow: 0 0 15px #000;
+      z-index: 10;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      cursor: default;
+    }
+
+    .btn {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 12px 30px;
+      border-radius: 10px;
+      background-color: #FF7F00;
+      border: none;
+      cursor: pointer;
+      color: #000;
+      box-shadow: 0 0 15px #FFA500;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background-color: #CD6600;
+    }
+
+    #resetBtn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 20;
+      font-size: 1em;
+      padding: 10px 20px;
+      background-color: #ff5555;
+      color: white;
+      box-shadow: 0 0 10px #ff0000;
+    }
+
+    #resetBtn:hover {
+      background-color: #dd4444;
+    }
+  </style>
+</head>
+<body>
+  <button id="resetBtn" class="btn">Reset</button>
+
+  <div class="wrapper">
+    <h1>Hanzis Kiosk Preisrechner</h1>
+
+    <div class="calculator" id="calculator">
+
+      <!-- ESSEN/TRINKEN -->
+      <div class="category">
+        <h2>ESSEN/TRINKEN</h2>
+        <div class="items">
+          <div class="item"><span>Bratwurst mit Brötchen (130$)</span><input type="number" value="0" min="0" data-price="130"></div>
+          <div class="item"><span>Currywurst (130$)</span><input type="number" value="0" min="0" data-price="130"></div>
+          <div class="item"><span>Krombacher Bier (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
+          <div class="item"><span>Spezi (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
+          <div class="item"><span>Redbull (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
+          <div class="item"><span>Durstlöscher (120$)</span><input type="number" value="0" min="0" data-price="120"></div>
+        </div>
+      </div>
+
+      <!-- SNACKS -->
+      <div class="category">
+        <h2>SNACKS</h2>
+        <div class="items">
+          <div class="item"><span>Gemischte Tüte (110$)</span><input type="number" value="0" min="0" data-price="110"></div>
+          <div class="item"><span>Kratzeis (110$)</span><input type="number" value="0" min="0" data-price="110"></div>
+        </div>
+      </div>
+
+      <!-- EXTRAS -->
+      <div class="category">
+        <h2>EXTRAS</h2>
+        <div class="items">
+          <div class="item"><span>12 Bar Vape (1500$)</span><input type="number" value="0" min="0" data-price="1500"></div>
+          <div class="item"><span>Rubellose (750$)</span><input type="number" value="0" min="0" data-price="750"></div>
+          <div class="item"><span>Gutschein (1400$)</span><input type="number" value="0" min="0" data-price="1400"></div>
+          <div class="item"><span>Lachgas (1500$)</span><input type="number" value="0" min="0" data-price="1500"></div>
+          <div class="item"><span>Ballon (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+          <div class="item"><span>Snus (650$)</span><input type="number" value="0" min="0" data-price="650"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="copyInvoiceBtn" class="btn">Rechnungstext kopieren</button>
+    <button id="copyPriceBtn" class="btn">Preis kopieren</button>
+  </div>
+
+  <div id="total">Gesamtpreis: 0$</div>
+
+  <script>
+    function calculateTotal() {
+      const inputs = document.querySelectorAll('input[type="number"]');
+      let total = 0;
+      inputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        const price = parseFloat(input.dataset.price);
+        total += quantity * price;
+      });
+      document.getElementById("total").textContent = "Gesamtpreis: " + total + "$";
+    }
+
+    function getInvoiceText() {
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth() + 1;
+      const year = today.getFullYear();
+      return `HK Rechnung | ${day}.${month}.${year}`;
+    }
+
+    function copyInvoiceText() {
+      const text = getInvoiceText();
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    function copyPriceOnly() {
+      const totalText = document.getElementById("total").textContent;
+      const numberOnly = totalText.replace(/[^\d]/g, '');
+      navigator.clipboard.writeText(numberOnly).catch(() => {});
+    }
+
+    function resetAll() {
+      document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = 0;
+      });
+      calculateTotal();
+    }
+
+    // Event listeners
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', calculateTotal);
+    });
+
+    document.getElementById('copyInvoiceBtn').addEventListener('click', copyInvoiceText);
+    document.getElementById('copyPriceBtn').addEventListener('click', copyPriceOnly);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    calculateTotal();
+  </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bey Kebab Preisrechner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('hintergrund.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .wrapper {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #fff;
+      margin-bottom: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px #000;
+      user-select: none;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      padding: 30px;
+      border-radius: 20px;
+      background-color: rgba(0, 0, 0, 0.75);
+      max-width: 1200px;
+      width: 90%;
+      color: #fff;
+      box-shadow: 0 0 20px #000;
+    }
+
+    .category {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .category h2 {
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+      color: #FF0000;
+      text-shadow: 0 0 8px #000;
+      user-select: none;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.2em;
+      padding: 5px 10px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .item input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1em;
+      background-color: #fff;
+      color: #000;
+    }
+
+    #total {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      font-weight: bold;
+      padding: 15px 40px;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: #FF0000;
+      text-shadow: 0 0 10px #000;
+      border-radius: 20px;
+      box-shadow: 0 0 15px #000;
+      z-index: 10;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      cursor: default;
+    }
+
+    .btn {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 12px 30px;
+      border-radius: 10px;
+      background-color: #FF0000;
+      border: none;
+      cursor: pointer;
+      color: #000;
+      box-shadow: 0 0 15px #FF0000;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background-color: #b71414;
+    }
+
+    #resetBtn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 20;
+      font-size: 1em;
+      padding: 10px 20px;
+      background-color: #ff5555;
+      color: white;
+      box-shadow: 0 0 10px #ff0000;
+    }
+
+    #resetBtn:hover {
+      background-color: #dd4444;
+    }
+  </style>
+</head>
+<body>
+  <button id="resetBtn" class="btn">Reset</button>
+
+  <div class="wrapper">
+    <h1>Bey Kebab Preisrechner</h1>
+
+    <div class="calculator" id="calculator">
+      <!-- ANA YEMEKLER -->
+      <div class="category">
+        <h2>ANA YEMEKLER</h2>
+        <div class="items">
+          <div class="item"><span>Döner (200$)</span><input type="number" value="0" min="0" data-price="200"></div>
+          <div class="item"><span>Dürüm (165$)</span><input type="number" value="0" min="0" data-price="165"></div>
+          <div class="item"><span>Sucuklu Yumurta (130$)</span><input type="number" value="0" min="0" data-price="130"></div>
+          <div class="item"><span>Iskender (165$)</span><input type="number" value="0" min="0" data-price="165"></div>
+          <div class="item"><span>2 Stunden Menü (450$)</span><input type="number" value="0" min="0" data-price="450"></div>
+        </div>
+      </div>
+
+      <!-- SPEZIAL -->
+      <div class="category">
+        <h2>SPEZIAL</h2>
+        <div class="items">
+          <div class="item"><span>Kuru Fasülye (200$)</span><input type="number" value="0" min="0" data-price="200"></div>
+          <div class="item"><span>Manti (120$)</span><input type="number" value="0" min="0" data-price="120"></div>
+          <div class="item"><span>Simit (50$)</span><input type="number" value="0" min="0" data-price="50"></div>
+          <div class="item"><span>Dondurma (165$)</span><input type="number" value="0" min="0" data-price="165"></div>
+          <div class="item"><span>Efe's 0.0% (300$)</span><input type="number" value="0" min="0" data-price="300"></div>
+        </div>
+      </div>
+
+      <!-- GETRÄNKE -->
+      <div class="category">
+        <h2>GETRÄNKE</h2>
+        <div class="items">
+          <div class="item"><span>Fanta Exotic (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+          <div class="item"><span>Didi IceTea (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+          <div class="item"><span>Uludag Frutti Extra (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+          <div class="item"><span>Ayran Cherry (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+          <div class="item"><span>Türk Kahvesi (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="copyInvoiceBtn" class="btn">Rechnungstext kopieren</button>
+    <button id="copyPriceBtn" class="btn">Preis kopieren</button>
+  </div>
+
+  <div id="total">Gesamtpreis: 0$</div>
+
+  <script>
+    function calculateTotal() {
+      const inputs = document.querySelectorAll('input[type="number"]');
+      let total = 0;
+      inputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        const price = parseFloat(input.dataset.price);
+        total += quantity * price;
+      });
+      document.getElementById("total").textContent = "Gesamtpreis: " + total + "$";
+    }
+
+    function getInvoiceText() {
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth() + 1;
+      const year = today.getFullYear();
+      return `KEBAB ${day}.${month}.${year} - Verkauf von Speisen und Getränken`;
+    }
+
+    function copyInvoiceText() {
+      const text = getInvoiceText();
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    function copyPriceOnly() {
+      const totalText = document.getElementById("total").textContent;
+      const numberOnly = totalText.replace(/[^\d]/g, '');
+      navigator.clipboard.writeText(numberOnly).catch(() => {});
+    }
+
+    function resetAll() {
+      document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = 0;
+      });
+      calculateTotal();
+    }
+
+    // Event listeners
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', calculateTotal);
+    });
+
+    document.getElementById('copyInvoiceBtn').addEventListener('click', copyInvoiceText);
+    document.getElementById('copyPriceBtn').addEventListener('click', copyPriceOnly);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    calculateTotal();
+  </script>
+</body>
+</html>

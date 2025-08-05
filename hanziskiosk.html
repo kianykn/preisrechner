@@ -189,7 +189,7 @@
         <h2>EXTRAS</h2>
         <div class="items">
           <div class="item"><span>12 Bar Vape (1500$)</span><input type="number" value="0" min="0" data-price="1500"></div>
-          <div class="item"><span>Rubellose (750$)</span><input type="number" value="0" min="0" data-price="750"></div>
+          <div class="item"><span>Rubellose (750$)</span><input type="number" value="0" min="0" data-price="750" data-name="Rubellose"></div>
           <div class="item"><span>Gutschein (1400$)</span><input type="number" value="0" min="0" data-price="1400"></div>
           <div class="item"><span>Lachgas (1500$)</span><input type="number" value="0" min="0" data-price="1500"></div>
           <div class="item"><span>Ballon (100$)</span><input type="number" value="0" min="0" data-price="100"></div>
@@ -218,10 +218,36 @@
 
     function getInvoiceText() {
       const today = new Date();
-      const day = today.getDate();
-      const month = today.getMonth() + 1;
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
       const year = today.getFullYear();
-      return `HK Rechnung | ${day}.${month}.${year}`;
+
+      let itemCount = 0;
+      let rubelloseDetected = false;
+
+      const inputs = document.querySelectorAll('input[type="number"]');
+      inputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        const label = input.parentElement.textContent;
+
+        if (label.includes("Bratwurst") || label.includes("Currywurst") || label.includes("Krombacher") ||
+            label.includes("Spezi") || label.includes("Redbull") || label.includes("Durstlöscher") ||
+            label.includes("Gemischte") || label.includes("Kratzeis")) {
+          itemCount += quantity;
+        }
+
+        if (label.includes("Rubellose") && quantity > 0) {
+          rubelloseDetected = true;
+        }
+      });
+
+      const personCount = Math.ceil(itemCount / 10) || 1;
+
+      let invoice = `${day}.${month}.${year} | Hanzis | ${personCount} Person${personCount > 1 ? 'en' : ''}`;
+      if (rubelloseDetected) {
+        invoice += ' | Rubbellose';
+      }
+      return invoice;
     }
 
     function copyInvoiceText() {
@@ -255,3 +281,4 @@
   </script>
 </body>
 </html>
+

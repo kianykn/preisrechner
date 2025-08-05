@@ -216,12 +216,35 @@
       document.getElementById("total").textContent = "Gesamtpreis: " + total + "$";
     }
 
-    function getInvoiceText() {
-      const today = new Date();
-      const day = today.getDate();
-      const month = today.getMonth() + 1;
-      const year = today.getFullYear();
-      return `KEBAB ${day}.${month}.${year} - Verkauf von Speisen und Getränken`;
+function getInvoiceText() {
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+
+  const inputs = document.querySelectorAll('input[type="number"]');
+  let essenCount = 0;
+  let trinkenCount = 0;
+
+  inputs.forEach(input => {
+    const quantity = parseInt(input.value) || 0;
+    const parentCategory = input.closest('.category');
+    if (parentCategory) {
+      const title = parentCategory.querySelector('h2')?.textContent?.toUpperCase() || '';
+      if (title.includes("GETRÄNKE")) {
+        trinkenCount += quantity;
+      } else {
+        essenCount += quantity;
+      }
+    }
+  });
+
+  const personen = Math.min(Math.floor(essenCount / 5), Math.floor(trinkenCount / 5));
+  const personenText = personen > 0 ? ` - ${personen} P.` : '';
+
+  return `KEBAB ${day}.${month}.${year} - Verkauf von Speisen und Getränken${personenText}`;
+}
+
     }
 
     function copyInvoiceText() {

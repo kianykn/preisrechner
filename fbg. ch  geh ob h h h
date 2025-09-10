@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>SugarShock Preisrechner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('hintergrundsugarshock.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .wrapper {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #fff;
+      margin: 5px 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 6px 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px #000;
+      user-select: none;
+    }
+
+    .calculator {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: stretch;
+      gap: 15px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .category {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 6px;
+      flex: 1;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.75);
+      border-radius: 12px;
+    }
+
+    .category h2 {
+      text-align: center;
+      font-size: 1.3em;
+      margin: 0 0 8px 0;
+      color: #FF1493;
+      text-shadow: 0 0 6px #000;
+      user-select: none;
+    }
+
+    .items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9em;
+      padding: 4px 6px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .item input[type="number"] {
+      width: 45px;
+      padding: 2px;
+      border-radius: 6px;
+      border: none;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+
+    .controls button {
+      background-color: #FF1493;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      font-size: 0.95em;
+      transition: 0.2s;
+    }
+
+    .controls button:hover {
+      background-color: #ff4da6;
+    }
+
+    .total {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      padding: 8px 20px;
+      border-radius: 12px;
+      background-color: rgba(0,0,0,0.8);
+      color: #FF1493;
+      box-shadow: 0 0 10px #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>SugarShock Preisrechner</h1>
+
+    <div class="calculator">
+      <div class="category">
+        <h2>GETRÄNKE</h2>
+        <div class="items">
+          <div class="item">Slush (200$) <input type="number" min="0" value="0" data-price="200"></div>
+          <div class="item">Chupa Chups Bubblegum (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Red Bull (100$) <input type="number" min="0" value="0" data-price="100"></div>
+        </div>
+      </div>
+
+      <div class="category">
+        <h2>SÜßWAREN</h2>
+        <div class="items">
+          <div class="item">Sugarnachos (200$) <input type="number" min="0" value="0" data-price="200"></div>
+          <div class="item">Sugarwatte (80$) <input type="number" min="0" value="0" data-price="80"></div>
+          <div class="item">Sugarstange (80$) <input type="number" min="0" value="0" data-price="80"></div>
+          <div class="item">Sour Patch Extreme (80$) <input type="number" min="0" value="0" data-price="80"></div>
+          <div class="item">Choco Fruits (80$) <input type="number" min="0" value="0" data-price="80"></div>
+          <div class="item">Eis (100$) <input type="number" min="0" value="0" data-price="100"></div>
+        </div>
+      </div>
+
+      <div class="category">
+        <h2>GESCHENKE</h2>
+        <div class="items">
+          <div class="item">Lebkuchenherz (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Lolli Strauss (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Pralinen (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Gutschein (2000$) <input type="number" min="0" value="0" data-price="2000" data-ignore="true"></div>
+        </div>
+      </div>
+
+      <div class="category">
+        <h2>SPECIAL</h2>
+        <div class="items">
+          <div class="item">Teddy Träumchen (100$) <input type="number" min="0" value="0" data-price="100"></div>
+          <div class="item">Teddy Pop (100$) <input type="number" min="0" value="0" data-price="100"></div>
+          <div class="item">Wundertüte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Hochzeitstorte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Geburtstagstorte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Tweriks (120$) <input type="number" min="0" value="0" data-price="120"></div>
+          <div class="item">Sugar Bennys (60$) <input type="number" min="0" value="0" data-price="60"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button onclick="copyText()">Rechnungstext kopieren</button>
+      <button onclick="copyPrice()">Preis kopieren</button>
+    </div>
+
+    <div class="total" id="total">Gesamtpreis: 0$</div>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll('.item input');
+    const totalDisplay = document.getElementById('total');
+
+    function calculateTotal() {
+      let total = 0;
+      inputs.forEach(input => {
+        const price = parseInt(input.dataset.price);
+        const ignore = input.dataset.ignore === "true";
+        const amount = parseInt(input.value) || 0;
+        if (!ignore) {
+          total += price * amount;
+        }
+      });
+      totalDisplay.textContent = "Gesamtpreis: " + total + "$";
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener('input', calculateTotal);
+    });
+
+    function copyText() {
+      let text = "Rechnung:\n";
+      inputs.forEach(input => {
+        const val = parseInt(input.value) || 0;
+        if (val > 0) {
+          const name = input.parentElement.textContent.trim();
+          text += `${name} x${val}\n`;
+        }
+      });
+      navigator.clipboard.writeText(text);
+      alert("Rechnungstext kopiert!");
+    }
+
+    function copyPrice() {
+      const price = totalDisplay.textContent;
+      navigator.clipboard.writeText(price);
+      alert("Preis kopiert!");
+    }
+  </script>
+</body>
+</html>

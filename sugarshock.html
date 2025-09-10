@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Bey Kebab Preisrechner</title>
+  <title>SugarShock Preisrechner</title>
   <style>
     * {
       box-sizing: border-box;
@@ -158,12 +158,12 @@
   <button id="resetBtn" class="btn">Reset</button>
 
   <div class="wrapper">
-    <h1>Bey Kebab Preisrechner</h1>
+    <h1>SugarShock Preisrechner</h1>
 
     <div class="calculator" id="calculator">
-      <!-- ANA YEMEKLER -->
+      <!-- Kategorien -->
       <div class="category">
-        <h2>ANA YEMEKLER</h2>
+        <h2>GETRÄNKE</h2>
         <div class="items">
           <div class="item">Slush (200$) <input type="number" min="0" value="0" data-price="200"></div>
           <div class="item">Chupa Chups Bubblegum (150$) <input type="number" min="0" value="0" data-price="150"></div>
@@ -171,9 +171,8 @@
         </div>
       </div>
 
-      <!-- SPEZIAL -->
       <div class="category">
-        <h2>SPEZIAL</h2>
+        <h2>SÜßWAREN</h2>
         <div class="items">
           <div class="item">Sugarnachos (200$) <input type="number" min="0" value="0" data-price="200"></div>
           <div class="item">Sugarwatte (80$) <input type="number" min="0" value="0" data-price="80"></div>
@@ -184,15 +183,26 @@
         </div>
       </div>
 
-      <!-- GETRÄNKE -->
       <div class="category">
-        <h2>GETRÄNKE</h2>
+        <h2>GESCHENKE</h2>
         <div class="items">
-          <div class="item"><span>Fanta Exotic (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
-          <div class="item"><span>Didi IceTea (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
-          <div class="item"><span>Uludag Frutti Extra (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
-          <div class="item"><span>Ayran Cherry (150$)</span><input type="number" value="0" min="0" data-price="150"></div>
-          <div class="item"><span>Türk Kahvesi (80$)</span><input type="number" value="0" min="0" data-price="80"></div>
+          <div class="item">Lebkuchenherz (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Lolli Strauss (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Pralinen (150$) <input type="number" min="0" value="0" data-price="150"></div>
+          <div class="item">Gutschein (2000$) <input type="number" min="0" value="0" data-price="2000" data-ignore="true"></div>
+        </div>
+      </div>
+
+      <div class="category">
+        <h2>SPECIAL</h2>
+        <div class="items">
+          <div class="item">Teddy Träumchen (100$) <input type="number" min="0" value="0" data-price="100"></div>
+          <div class="item">Teddy Pop (100$) <input type="number" min="0" value="0" data-price="100"></div>
+          <div class="item">Wundertüte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Hochzeitstorte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Geburtstagstorte (250$) <input type="number" min="0" value="0" data-price="250"></div>
+          <div class="item">Tweriks (120$) <input type="number" min="0" value="0" data-price="120"></div>
+          <div class="item">Sugar Bennys (60$) <input type="number" min="0" value="0" data-price="60"></div>
         </div>
       </div>
     </div>
@@ -204,15 +214,20 @@
   <div id="total">Gesamtpreis: 0$</div>
 
   <script>
+    const inputs = document.querySelectorAll('.item input');
+    const totalDisplay = document.getElementById('total');
+
     function calculateTotal() {
-      const inputs = document.querySelectorAll('input[type="number"]');
       let total = 0;
       inputs.forEach(input => {
-        const quantity = parseInt(input.value) || 0;
-        const price = parseFloat(input.dataset.price);
-        total += quantity * price;
+        const price = parseInt(input.dataset.price);
+        const ignore = input.dataset.ignore === "true";
+        const amount = parseInt(input.value) || 0;
+        if (!ignore) {
+          total += price * amount;
+        }
       });
-      document.getElementById("total").textContent = "Gesamtpreis: " + total + "$";
+      totalDisplay.textContent = "Gesamtpreis: " + total + "$";
     }
 
     function getInvoiceText() {
@@ -221,38 +236,45 @@
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const year = today.getFullYear();
 
-      const inputs = document.querySelectorAll('input[type="number"]');
+      let text = `${day}.${month}.${year} | SugarShock\n\nRechnung:\n`;
       let totalItems = 0;
 
       inputs.forEach(input => {
-        totalItems += parseInt(input.value) || 0;
+        const val = parseInt(input.value) || 0;
+        if (val > 0) {
+          const name = input.parentElement.textContent.trim();
+          text += `${name} x${val}\n`;
+          totalItems += val;
+        }
       });
 
       const personen = totalItems > 0 ? Math.ceil(totalItems / 10) : 0;
-      const personenText = personen > 0 ? ` | ${personen} P.` : '';
+      if (personen > 0) text += `\n(${personen} Personen)\n`;
 
-      return `${day}.${month}.${year} | BeyKebab${personenText}`;
+      return text;
     }
 
     function copyInvoiceText() {
       const text = getInvoiceText();
-      navigator.clipboard.writeText(text).catch(() => {});
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Rechnungstext kopiert!");
+      });
     }
 
     function copyPriceOnly() {
-      const totalText = document.getElementById("total").textContent;
+      const totalText = totalDisplay.textContent;
       const numberOnly = totalText.replace(/[^\d]/g, '');
-      navigator.clipboard.writeText(numberOnly).catch(() => {});
+      navigator.clipboard.writeText(numberOnly).then(() => {
+        alert("Preis kopiert!");
+      });
     }
 
     function resetAll() {
-      document.querySelectorAll('input[type="number"]').forEach(input => {
-        input.value = 0;
-      });
+      inputs.forEach(input => input.value = 0);
       calculateTotal();
     }
 
-    document.querySelectorAll('input[type="number"]').forEach(input => {
+    inputs.forEach(input => {
       input.addEventListener('input', calculateTotal);
     });
 

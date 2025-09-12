@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vigenère - Verschlüsseln & Entschlüsseln</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 18px; background:#f7f7fb; color:#111; }
+  h1 { margin-bottom:6px; }
+  .container { display:flex; gap:24px; flex-wrap:wrap; }
+  .box { background:white; padding:12px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+  .table-wrap { overflow:auto; max-width:520px; }
+  table.vig { border-collapse:collapse; user-select:none; }
+  table.vig td, table.vig th { border:1px solid #ddd; width:28px; height:28px; text-align:center; font-weight:600; cursor:default; }
+  table.vig th { background:#111; color:white; font-weight:700; cursor:pointer; }
+  .clickable { cursor:pointer; background:#eef3ff; }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px; }
+  input[type="text"], textarea, select { padding:6px 8px; border:1px solid #cfcfcf; border-radius:6px; font-size:14px; }
+  textarea { min-width:320px; min-height:80px; resize:vertical; }
+  button { padding:8px 10px; border-radius:6px; border:0; background:#2b6df6; color:white; cursor:pointer; }
+  button.secondary { background:#666; }
+  .small { font-size:13px; color:#444; }
+  .result { margin-top:8px; padding:8px; border-radius:6px; background:#f1f8ff; border:1px solid #d6e6ff; font-family:monospace; }
+  label { display:block; margin-bottom:6px; font-weight:600; }
+  .row { margin-bottom:10px; }
+  .help { font-size:13px; color:#444; margin-top:8px; }
+  .highlight { background:#ffeaa7; }
+  .cell:hover { background:#eef; }
+</style>
+</head>
+<body>
+  <h1>Vigenère-Chiffre (verschlüsseln & entschlüsseln)</h1>
+  <p class="small">Klicke auf Buchstaben in der oberen Zeile oder linken Spalte, um sie in das gewählte Eingabefeld einzufügen. Die Spalte entspricht dem Codewort, die Zeile dem Klartext (bei Anzeige der Tabelle).</p>
+
+  <div class="container">
+    <div class="box" style="flex:1; min-width:360px;">
+      <div class="row">
+        <label>Wohin sollen Klicks in der Tabelle geschrieben werden?</label>
+        <select id="targetField">
+          <option value="plaintext">Klartext (Plaintext)</option>
+          <option value="key">Codewort (Key)</option>
+          <option value="cipher">Chiffretext (Cipher)</option>
+        </select>
+        <div class="help">Wähle ein Feld — Klicks auf Kopfzeile / -spalte fügen Buchstaben dort ein.</div>
+      </div>
+
+      <div class="row">
+        <label for="plaintext">Klartext</label>
+        <textarea id="plaintext" placeholder="Nur Buchstaben A–Z; Leerzeichen werden ignoriert"></textarea>
+      </div>
+
+      <div class="row">
+        <label for="key">Codewort</label>
+        <input id="key" type="text" placeholder="Key (z.B. SCHLÜSSEL)"/>
+      </div>
+
+      <div class="controls">
+        <button id="encryptBtn">🔒 Verschlüsseln</button>
+        <button id="decryptBtn">🔓 Entschlüsseln</button>
+        <button class="secondary" id="clearBtn">Alles löschen</button>
+        <button class="secondary" id="trimBtn">Nicht-Buchstaben entfernen</button>
+      </div>
+
+      <div class="row">
+        <label for="cipher">Chiffretext</label>
+        <textarea id="cipher" placeholder="Ergebnis: Chiffretext"></textarea>
+      </div>
+
+      <div class="result" id="status">Bereit.</div>
+    </div>
+
+    <div class="box" style="width:520px;">
+      <label>Interaktive Vigenère-Tabelle (klickbare Kopfzeilen/Spalten)</label>
+      <div class="table-wrap">
+        <table class="vig" id="vigTable" aria-label="Vigenere Tabelle"></table>
+      </div>
+
+      <div class="controls" style="margin-top:10px;">
+        <div class="small">Einzeloperation:</div>
+        <input id="singleCipher" placeholder="Chiffre-Buchstabe (A–Z)" maxlength="1" style="width:56px"/>
+        <select id="singleKeyLetter" style="width:120px;">
+          <!-- options A..Z werden per JS ergänzt -->
+        </select>
+        <button id="singleDecryptBtn">Einzeln entschlüsseln</button>
+        <div id="singleResult" class="small" style="margin-left:8px"></div>
+      </div>
+
+      <div class="help" style="margin-top:10px;">
+        <strong>Hinweis:</strong> Spalten entsprechen dem Codewort (Key), Zeilen dem Klartext (Plaintext). Klickst du auf eine Tabellen-Zelle, wird die Zelle hervorgehoben und unten angezeigt, welches Klartext/Schlüssel/Chiffre-Trio das ist.
+      </div>
+      <div id="cellInfo" class="result" style="margin-top:8px">Keine Zelle ausgewählt.</div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const A = 'A'.charCodeAt(0);
+  const letters = Array.from({length:26}, (_,i) => String.fromCharCode(A + i));
+
+  const vigTable = document.getElementById('vigTable');
+  const targetField = document.getElementById('targetField');
+  const plaintextEl = document.getElementById('plaintext');
+  const keyEl = document.getElementById('key');
+  const cipherEl = document.getElementById('cipher');
+  const status = document.getElementById('status');
+  const singleKeyLetter = document.getElementById('singleKeyLetter');
+  const singleCipher = document.getElementById('singleCipher');
+  const singleResult = document.getElementById('singleResult');
+  const cellInfo = document.getElementById('cellInfo');
+
+  // populate select A..Z for single decrypt
+  letters.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = l;
+    singleKeyLetter.appendChild(opt);
+  });
+
+  // build table
+  function buildTable() {
+    vigTable.innerHTML = '';
+    // header row
+    const thead = document.createElement('tr');
+    const corner = document.createElement('th');
+    corner.textContent = '';
+    thead.appendChild(corner);
+    letters.forEach((colLetter, col) => {
+      const th = document.createElement('th');
+      th.textContent = colLetter;
+      th.dataset.letter = colLetter;
+      th.classList.add('clickable');
+      th.title = "Klicke, um diesen Buchstaben in das gewählte Eingabefeld zu schreiben (Spalte)";
+      th.addEventListener('click', () => headerClicked(colLetter));
+      thead.appendChild(th);
+    });
+    vigTable.appendChild(thead);
+
+    // rows
+    letters.forEach((rowLetter, r) => {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = rowLetter;
+      th.dataset.letter = rowLetter;
+      th.classList.add('clickable');
+      th.title = "Klicke, um diesen Buchstaben in das gewählte Eingabefeld zu schreiben (Zeile)";
+      th.addEventListener('click', () => headerClicked(rowLetter));
+      tr.appendChild(th);
+
+      letters.forEach((colLetter, c) => {
+        const td = document.createElement('td');
+        td.classList.add('cell');
+        // value = (rowIndex + colIndex) mod 26
+        const rIdx = rowLetter.charCodeAt(0) - A;
+        const cIdx = colLetter.charCodeAt(0) - A;
+        const val = String.fromCharCode(A + ((rIdx + cIdx) % 26));
+        td.textContent = val;
+        td.dataset.row = rowLetter;
+        td.dataset.col = colLetter;
+        td.dataset.val = val;
+        td.addEventListener('click', (ev) => {
+          // show cell info and highlight
+          clearHighlights();
+          td.classList.add('highlight');
+          showCellInfo(rowLetter, colLetter, val);
+        });
+        tr.appendChild(td);
+      });
+
+      vigTable.appendChild(tr);
+    });
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+  }
+
+  function showCellInfo(row, col, val) {
+    // row = plaintext letter, col = key letter, val = cipher
+    cellInfo.innerHTML = `<strong>Zeile (Klartext):</strong> ${row} &nbsp; | &nbsp; <strong>Spalte (Key):</strong> ${col} &nbsp; | &nbsp; <strong>Chiffre:</strong> ${val}`;
+  }
+
+  // handle header clicks -> append letter to chosen input
+  function headerClicked(letter) {
+    const target = targetField.value;
+    if (target === 'plaintext') {
+      insertAtEnd(plaintextEl, letter);
+      status.textContent = `Klartext: "${plaintextEl.value}"`;
+    } else if (target === 'key') {
+      insertAtEnd(keyEl, letter);
+      status.textContent = `Key: "${keyEl.value}"`;
+    } else if (target === 'cipher') {
+      insertAtEnd(cipherEl, letter);
+      status.textContent = `Chiffretext: "${cipherEl.value}"`;
+    }
+  }
+
+  function insertAtEnd(el, letter) {
+    // keep letters uppercase and only A-Z
+    const ch = letter.toUpperCase().replace(/[^A-Z]/g,'');
+    if (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input') {
+      el.value = (el.value || '') + ch;
+    }
+  }
+
+  function sanitizeText(str) {
+    return (str || '').toUpperCase().replace(/[^A-Z]/g,'');
+  }
+
+  // Vigenère operations
+  function vigenereEncrypt(plain, key) {
+    plain = sanitizeText(plain);
+    key = sanitizeText(key);
+    if (!key) return '';
+    let res = '';
+    for (let i=0;i<plain.length;i++) {
+      const p = plain.charCodeAt(i) - A;
+      const k = key.charCodeAt(i % key.length) - A;
+      res += String.fromCharCode(A + ( (p + k) % 26 ));
+    }
+    return res;
+  }
+
+  function vigenereDecrypt(cipher, key) {
+    cipher = sanitizeText(cipher);
+    key = sanitizeText(key);
+    if (!key) return '';
+    let res = '';
+    for (let i=0;i<cipher.length;i++) {
+      const c = cipher.charCodeAt(i) - A;
+      const k = key.charCodeAt(i % key.length) - A;
+      res += String.fromCharCode(A + ( (c - k + 26) % 26 ));
+    }
+    return res;
+  }
+
+  // wire up buttons
+  document.getElementById('encryptBtn').addEventListener('click', () => {
+    const p = plaintextEl.value;
+    const k = keyEl.value;
+    const c = vigenereEncrypt(p, k);
+    if (!k.trim()) {
+      status.textContent = "Bitte gib ein Codewort (Key) ein.";
+      return;
+    }
+    cipherEl.value = c;
+    status.textContent = `Verschlüsselt. (${sanitizeText(p).length} Zeichen verarbeitet)`;
+  });
+
+  document.getElementById('decryptBtn').addEventListener('click', () => {
+    const c = cipherEl.value;
+    const k = keyEl.value;
+    const p = vigenereDecrypt(c, k);
+    if (!k.trim()) {
+      status.textContent = "Bitte gib ein Codewort (Key) ein.";
+      return;
+    }
+    plaintextEl.value = p;
+    status.textContent = `Entschlüsselt. (${sanitizeText(c).length} Zeichen verarbeitet)`;
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    plaintextEl.value = '';
+    keyEl.value = '';
+    cipherEl.value = '';
+    status.textContent = 'Bereit.';
+    singleResult.textContent = '';
+    cellInfo.textContent = 'Keine Zelle ausgewählt.';
+    clearHighlights();
+  });
+
+  document.getElementById('trimBtn').addEventListener('click', () => {
+    plaintextEl.value = sanitizeText(plaintextEl.value);
+    keyEl.value = sanitizeText(keyEl.value);
+    cipherEl.value = sanitizeText(cipherEl.value);
+    status.textContent = 'Nicht-Buchstaben entfernt (nur A–Z bleibt).';
+  });
+
+  document.getElementById('singleDecryptBtn').addEventListener('click', () => {
+    const c = sanitizeText(singleCipher.value).slice(0,1);
+    const k = singleKeyLetter.value;
+    if (!c) {
+      singleResult.textContent = 'Bitte gib einen Chiffre-Buchstaben ein.';
+      return;
+    }
+    // P = (C - K) mod 26
+    const p = String.fromCharCode(A + ((c.charCodeAt(0) - A) - (k.charCodeAt(0) - A) + 26) % 26);
+    singleResult.textContent = `Entschlüsselt: ${p} (aus Chiffre ${c} mit Key ${k})`;
+    status.textContent = `Einzelergebnis: ${p}`;
+  });
+
+  // Clicking on a table cell already shows row/col/val. Also add support: double-click cell -> insert its letters into fields
+  vigTable.addEventListener('dblclick', (ev) => {
+    const td = ev.target.closest('td');
+    if (!td) return;
+    const row = td.dataset.row;
+    const col = td.dataset.col;
+    const val = td.dataset.val;
+    // On double-click: append row to plaintext, col to key, val to cipher
+    insertAtEnd(plaintextEl, row);
+    insertAtEnd(keyEl, col);
+    insertAtEnd(cipherEl, val);
+    status.textContent = `Doppelklick: ${row} -> Klartext, ${col} -> Key, ${val} -> Chiffre hinzugefügt.`;
+  });
+
+  // initial build
+  buildTable();
+
+  // small shortcut: pressing Tab cycles targetField
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const opts = ['plaintext','key','cipher'];
+      const idx = opts.indexOf(targetField.value);
+      targetField.value = opts[(idx+1)%opts.length];
+    }
+  });
+
+  // keep status in sync if user types
+  [plaintextEl, keyEl, cipherEl].forEach(el => {
+    el.addEventListener('input', () => {
+      status.textContent = `Klartext: ${sanitizeText(plaintextEl.value).slice(0,60)} | Key: ${sanitizeText(keyEl.value).slice(0,60)}`;
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

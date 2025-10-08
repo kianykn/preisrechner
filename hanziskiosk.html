@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <title>Hanzis Kiosk Preisrechner</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
@@ -133,9 +131,7 @@
       user-select: none;
     }
 
-    .btn:hover {
-      background-color: #CD6600;
-    }
+    .btn:hover { background-color: #CD6600; }
 
     #resetBtn {
       position: fixed;
@@ -149,9 +145,7 @@
       box-shadow: 0 0 10px #ff0000;
     }
 
-    #resetBtn:hover {
-      background-color: #dd4444;
-    }
+    #resetBtn:hover { background-color: #dd4444; }
   </style>
 </head>
 <body>
@@ -161,7 +155,6 @@
     <h1>Hanzis Kiosk Preisrechner</h1>
 
     <div class="calculator" id="calculator">
-
       <!-- ESSEN/TRINKEN -->
       <div class="category">
         <h2>ESSEN/TRINKEN</h2>
@@ -215,31 +208,53 @@
       document.getElementById("total").textContent = "Gesamtpreis: " + total + "$";
     }
 
+    function getShortName(fullName) {
+      const map = {
+        "Bratwurst mit Brötchen": "Bratwurst",
+        "Currywurst": "Currywurst",
+        "Krombacher Bier": "Krombacher",
+        "Spezi": "Spezi",
+        "Redbull": "Redbull",
+        "Durstlöscher": "Durstl.",
+        "Istanbul Street Fries": "Fries",
+        "Gemischte Tüte": "Tüte",
+        "Kratzeis": "Kratzeis",
+        "12 Bar Vape": "Vape",
+        "Rubellose": "Rubellose",
+        "Gutschein": "Gutschein",
+        "Lachgas": "Lachgas"
+      };
+      for (const key in map) {
+        if (fullName.includes(key)) return map[key];
+      }
+      return fullName;
+    }
+
     function getInvoiceText() {
       const today = new Date();
       const day = String(today.getDate()).padStart(2, '0');
       const month = String(today.getMonth() + 1).padStart(2, '0');
-      const year = String(today.getFullYear()).slice(-2); // '25'
+      const year = today.getFullYear().toString().slice(-2);
 
       const inputs = document.querySelectorAll('input[type="number"]');
-      let itemsText = [];
-      let totalItems = 0;
+      const soldItems = [];
 
+      let totalItems = 0;
       inputs.forEach(input => {
         const quantity = parseInt(input.value) || 0;
         if (quantity > 0) {
-          let itemName = input.parentElement.querySelector('span').textContent.split('(')[0].trim();
-          itemsText.push(`${quantity}x ${itemName}`);
+          const label = input.parentElement.querySelector("span").textContent.split("(")[0].trim();
+          const shortName = getShortName(label);
+          soldItems.push(`${quantity}x ${shortName}`);
           totalItems += quantity;
         }
       });
 
       const personen = totalItems > 0 ? Math.ceil(totalItems / 10) : 0;
       const personenText = personen > 0 ? ` | ${personen}P` : '';
+      const itemsText = soldItems.join(", ");
 
-      const artikelText = itemsText.join(', ') || 'Keine Auswahl';
-
-      return `HANZISKIOSK | ${day}.${month}.${year} | ${artikelText}${personenText}`;
+      return `HANZISKIOSK | ${day}.${month}.${year} | ${itemsText}${personenText}`;
     }
 
     function copyInvoiceText() {

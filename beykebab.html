@@ -220,19 +220,33 @@
       const today = new Date();
       const day = String(today.getDate()).padStart(2, '0');
       const month = String(today.getMonth() + 1).padStart(2, '0');
-      const year = today.getFullYear();
+      const year = String(today.getFullYear()).slice(-2); // z. B. '25'
 
       const inputs = document.querySelectorAll('input[type="number"]');
+      let itemsText = [];
       let totalItems = 0;
 
       inputs.forEach(input => {
-        totalItems += parseInt(input.value) || 0;
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+          let itemName = input.parentElement.querySelector('span').textContent.split('(')[0].trim();
+
+          // Sonderregel: "Ayran Cherry" → "Ayran"
+          if (itemName.toLowerCase().includes("ayran")) {
+            itemName = "Ayran";
+          }
+
+          itemsText.push(`${quantity}x ${itemName}`);
+          totalItems += quantity;
+        }
       });
 
       const personen = totalItems > 0 ? Math.ceil(totalItems / 10) : 0;
-      const personenText = personen > 0 ? ` | ${personen} P.` : '';
+      const personenText = personen > 0 ? ` | ${personen}P` : '';
 
-      return `${day}.${month}.${year} | BeyKebab${personenText}`;
+      const artikelText = itemsText.join(', ') || 'Keine Auswahl';
+
+      return `BEYKEBAB | ${day}.${month}.${year} | ${artikelText}${personenText}`;
     }
 
     function copyInvoiceText() {
@@ -265,4 +279,3 @@
   </script>
 </body>
 </html>
-

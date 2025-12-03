@@ -192,6 +192,7 @@
           <div class="item"><span>Lachgas (1500$)</span><input type="number" value="0" min="0" data-price="1500"></div>
         </div>
       </div>
+
     </div>
 
     <button id="copyInvoiceBtn" class="btn">Rechnungstext kopieren</button>
@@ -224,11 +225,15 @@
         "Gemischte Tüte": "Tüte",
         "Kratzeis": "Kratzeis",
         "12 Bar Vape": "Vape",
+
+        // ✔️ FIX: richtige Namen
+        "50k Rubellose": "50k Rubellose",
         "Rubellose": "Rubellose",
+
         "Gutschein": "Gutschein",
-        "Lachgas": "Lachgas",
-        "50k Rubellose": "50k Rubellose"
+        "Lachgas": "Lachgas"
       };
+
       for (const key in map) {
         if (fullName.toLowerCase().includes(key.toLowerCase())) return map[key];
       }

@@ -155,6 +155,7 @@
     <h1>Hanzis Kiosk Preisrechner</h1>
 
     <div class="calculator" id="calculator">
+
       <!-- ESSEN/TRINKEN -->
       <div class="category">
         <h2>ESSEN/TRINKEN</h2>
@@ -215,7 +216,7 @@
       const map = {
         "Bratwurst mit Brötchen": "Bratwurst",
         "Currywurst": "Currywurst",
-        "Hanzis Halbe": "Bier",
+        "Hanzis halbe": "Bier",
         "Cola Mix": "Cola Mix",
         "Energy": "Energy",
         "Durstlöscher": "Durstl.",
@@ -228,7 +229,7 @@
         "Lachgas": "Lachgas"
       };
       for (const key in map) {
-        if (fullName.includes(key)) return map[key];
+        if (fullName.toLowerCase().includes(key.toLowerCase())) return map[key];
       }
       return fullName;
     }
@@ -243,13 +244,18 @@
       const soldItems = [];
 
       let totalItems = 0;
+      let totalPrice = 0;
+
       inputs.forEach(input => {
         const quantity = parseInt(input.value) || 0;
+        const price = parseFloat(input.dataset.price) || 0;
+
         if (quantity > 0) {
           const label = input.parentElement.querySelector("span").textContent.split("(")[0].trim();
           const shortName = getShortName(label);
           soldItems.push(`${quantity}x ${shortName}`);
           totalItems += quantity;
+          totalPrice += quantity * price;
         }
       });
 
@@ -257,7 +263,7 @@
       const personenText = personen > 0 ? ` | ${personen}P` : '';
       const itemsText = soldItems.join(", ");
 
-      return `HANZISKIOSK | ${day}.${month}.${year} | ${itemsText}${personenText}`;
+      return `HANZISKIOSK | ${day}.${month}.${year} | ${itemsText}${personenText} | ${totalPrice}$`;
     }
 
     function copyInvoiceText() {

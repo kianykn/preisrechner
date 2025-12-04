@@ -225,11 +225,8 @@
         "Gemischte Tüte": "Tüte",
         "Kratzeis": "Kratzeis",
         "12 Bar Vape": "Vape",
-
-        // ✔️ FIX: richtige Namen
         "50k Rubellose": "50k Rubellose",
         "Rubellose": "Rubellose",
-
         "Gutschein": "Gutschein",
         "Lachgas": "Lachgas"
       };
@@ -260,8 +257,12 @@
           const label = input.parentElement.querySelector("span").textContent.split("(")[0].trim();
           const shortName = getShortName(label);
           soldItems.push(`${quantity}x ${shortName}`);
-          totalItems += quantity;
           totalPrice += quantity * price;
+
+          // ✅ Rubellose und 50k Rubellose nicht für Personen zählen
+          if (!label.toLowerCase().includes("rubellose")) {
+            totalItems += quantity;
+          }
         }
       });
 
